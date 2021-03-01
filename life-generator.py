@@ -5,6 +5,7 @@ import csv
 import sys
 from tkinter import *
 from tkinter import ttk
+import os
 
 
 def search_sort(search_results, top_amount):
@@ -15,11 +16,11 @@ def search_sort(search_results, top_amount):
     :return: list of top_amount of top rated products from search results
     """
     search_results.sort(key=lambda item: item.uniq_id)  # sort by uniq_id
-    search_results.sort(key=lambda item: item.num_of_reviews, reverse=True)    # then by number_of_reviews
-    search_results = search_results[0:top_amount * 10]   # take top X*10
+    search_results.sort(key=lambda item: item.num_of_reviews, reverse=True)  # then by number_of_reviews
+    search_results = search_results[0:top_amount * 10]  # take top X*10
     search_results.sort(key=lambda item: item.uniq_id)  # re-sort by uniq_id
     search_results.sort(key=lambda item: item.avg_review_rating, reverse=True)  # then by average_review_rating
-    search_results = search_results[0:top_amount]   # take top X
+    search_results = search_results[0:top_amount]  # take top X
     return search_results
 
 
@@ -52,7 +53,7 @@ class CSVData:
         :param top_amount: how many toys to output
         :return: sorted list of top toys
         """
-        search_results = []     # new list contains products whose main category matches search category
+        search_results = []  # new list contains products whose main category matches search category
         for product in self.main_product_list:
             if product.main_category == category:
                 search_results.append(product)
@@ -180,6 +181,37 @@ class Window:
         self.search_results.pack()
 
 
+class ContentGenerator:
+    """Microservice provided by other student, will use output file to display information to the user"""
+
+    def __init__(self):
+        self.path = "C:\\Users\\Idabeard\\SoftwareEngineering1\\Daniel D's Content Generator\\output.csv"
+        self.wiki_paragraph = None
+        self.primary_keyword = None
+        self.secondary_keyword = None
+        self.process_content_generated()
+
+    def does_path_exist(self):
+        """
+
+        :return:
+        """
+        return os.path.exists(self.path)
+
+    def process_content_generated(self):
+        """
+
+        :return:
+        """
+        if os.path.exists(self.path):
+            reader = csv.reader(open(self.path))
+            next(reader)
+            next(reader)
+            content = next(reader)
+            keywords = content[0]
+            self.wiki_paragraph = content[1]
+
+
 def process_infile(filename):
     """
     :param filename: input file from command line
@@ -213,12 +245,13 @@ def main():
     is started with input file on command line or used with GUI
     :return: None
     """
+    content = ContentGenerator()
     kaggle_data = CSVData('amazon_co-ecommerce_sample.csv')
     if len(sys.argv) == 2:  # if there's an input file, make an output file w/o GUI
         infile_data = process_infile(sys.argv[1])
         results = kaggle_data.user_search(infile_data[1], int(infile_data[2]))
         make_outfile(infile_data, results)
-    else:   # otherwise, start GUI
+    else:  # otherwise, start GUI
         root = Tk()
         app = Window(root, kaggle_data)
         root.mainloop()
