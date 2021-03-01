@@ -208,8 +208,20 @@ class ContentGenerator:
             next(reader)
             next(reader)
             content = next(reader)
-            keywords = content[0]
+            self.make_keywords(content[0])
             self.wiki_paragraph = content[1]
+
+    def make_keywords(self, keywords):
+        """
+        :param keywords: string with a primary and secondary keyword, separated by a ;
+        :return: None
+        """
+        primary = ''
+        i = 0
+        while keywords[i] != ';':
+            primary += keywords[i]
+            i += 1
+        self.primary_keyword, self.secondary_keyword = primary, keywords[i + 1:]
 
 
 def process_infile(filename):
